@@ -6,26 +6,41 @@
     <title>Freelankarx Assistant</title>
     <style>
         /* Base Styles */
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { 
+            margin: 0; padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: transparent;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
         
-        /* Floating Toggle Button - STACKED ABOVE WHATSAPP ON RIGHT */
+        /* Chat Window */
+        #chat-window {
+            width: 380px; height: 550px;
+            background: #0f172a; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            display: none; flex-direction: column; overflow: hidden; 
+            border: 1px solid #1e293b;
+            margin-bottom: 10px;
+            margin-right: 24px;
+            z-index: 10000;
+        }
+        
+        /* Floating Toggle Button */
         #chat-toggle {
-            position: fixed; bottom: 100px; right: 24px; width: 60px; height: 60px;
+            width: 60px; height: 60px;
             background: #2563eb; border-radius: 50%; border: none; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); z-index: 9999;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); 
             display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+            margin-bottom: 24px;
+            margin-right: 24px;
+            z-index: 10000;
         }
         #chat-toggle:hover { transform: scale(1.05); }
         #chat-toggle svg { width: 28px; height: 28px; fill: white; }
 
-        /* Chat Window - STACKED ABOVE TOGGLE ON RIGHT */
-        #chat-window {
-            position: fixed; bottom: 180px; right: 24px; width: 380px; height: 550px;
-            background: #0f172a; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            display: none; flex-direction: column; overflow: hidden; z-index: 9999;
-            border: 1px solid #1e293b;
-        }
-        
         /* Header */
         #chat-header {
             background: #1e293b; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
@@ -49,19 +64,14 @@
         #send-btn:hover { background: #1d4ed8; }
         #send-btn:disabled { background: #475569; cursor: not-allowed; }
 
-        /* Mobile Responsive - STACKED ON RIGHT */
+        /* Mobile Responsive */
         @media (max-width: 480px) {
-            #chat-window { width: calc(100vw - 32px); height: 70vh; right: 16px; bottom: 100px; }
-            #chat-toggle { bottom: 24px; right: 16px; }
+            #chat-window { width: calc(100vw - 48px); height: 60vh; margin-right: 0; }
+            #chat-toggle { margin-right: 0; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Floating Toggle Button -->
-    <button id="chat-toggle" onclick="toggleChat()">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-    </button>
 
     <!-- Chat Window -->
     <div id="chat-window">
@@ -78,8 +88,12 @@
         </div>
     </div>
 
+    <!-- Floating Toggle Button -->
+    <button id="chat-toggle" onclick="toggleChat()">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+    </button>
+
     <script>
-        // ✅ YOUR EXACT RENDER URL IS ALREADY FILLED IN HERE
         const BACKEND_URL = "https://freelankarx-chatbot-backend.onrender.com/chat"; 
 
         function toggleChat() {
@@ -98,18 +112,14 @@
             if (!text) return;
 
             const messagesDiv = document.getElementById('messages');
-            
-            // Add user message
             messagesDiv.innerHTML += `<div class="msg user">${text}</div>`;
             inputField.value = '';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            // Add loading indicator
             const loadingId = 'loading-' + Date.now();
             messagesDiv.innerHTML += `<div class="msg bot" id="${loadingId}">Thinking...</div>`;
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
-            // Disable input while loading
             inputField.disabled = true;
             sendBtn.disabled = true;
 
@@ -122,15 +132,12 @@
                 
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
-                
-                // Replace loading with actual response
                 document.getElementById(loadingId).innerText = data.response;
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById(loadingId).innerText = "I'm having a little trouble connecting right now. Please try again in a moment, or reach out via WhatsApp!";
             }
 
-            // Re-enable input
             inputField.disabled = false;
             sendBtn.disabled = false;
             inputField.focus();
