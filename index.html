@@ -2,20 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freelankarx Assistant</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --border: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
@@ -24,309 +14,175 @@
             overflow: hidden;
         }
 
-        /* --- Floating Toggle Button --- */
         #chat-toggle {
             position: fixed; bottom: 24px; right: 24px; 
-            width: 60px; height: 60px; min-width: 44px; min-height: 44px;
-            background: var(--primary); border-radius: 50%; border: none; cursor: pointer;
+            width: 60px; height: 60px;
+            background: #2563eb; border-radius: 50%; border: none; cursor: pointer;
             box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4); z-index: 10000;
             display: flex; align-items: center; justify-content: center; 
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+            transition: transform 0.2s;
         }
-        #chat-toggle:hover { transform: scale(1.05); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.6); }
-        #chat-toggle:active { transform: scale(0.95); }
+        #chat-toggle:hover { transform: scale(1.05); }
         #chat-toggle svg { width: 28px; height: 28px; fill: white; }
 
-        /* --- Chat Window (Desktop Default) --- */
         #chat-window {
             position: fixed; bottom: 96px; right: 24px; 
             width: 400px; max-height: 75vh;
-            background: var(--bg-dark); border-radius: 16px; 
+            background: #0f172a; border-radius: 16px; 
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; overflow: hidden; z-index: 10000;
-            border: 1px solid var(--border);
-            
-            /* Smooth Open/Close Animation */
-            opacity: 0; transform: translateY(20px) scale(0.95);
-            pointer-events: none; visibility: hidden;
-            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+            display: none; flex-direction: column; overflow: hidden; z-index: 10000;
+            border: 1px solid #1e293b;
         }
 
-        #chat-window.open {
-            opacity: 1; transform: translateY(0) scale(1);
-            pointer-events: auto; visibility: visible;
-        }
+        #chat-window.open { display: flex; }
 
-        /* --- Header --- */
         #chat-header {
-            background: var(--bg-card); padding: 16px 20px; 
+            background: #1e293b; padding: 16px 20px; 
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); flex-shrink: 0;
+            border-bottom: 1px solid #334155;
         }
-        #chat-header h3 { margin: 0; color: var(--text-primary); font-size: 16px; font-weight: 600; }
+        #chat-header h3 { color: white; font-size: 16px; font-weight: 600; }
         #close-chat { 
-            background: transparent; border: none; color: var(--text-secondary); 
-            cursor: pointer; font-size: 20px; width: 44px; height: 44px; 
-            display: flex; align-items: center; justify-content: center; border-radius: 50%;
-            transition: background 0.2s, color 0.2s;
+            background: transparent; border: none; color: #94a3b8; 
+            cursor: pointer; font-size: 24px; width: 32px; height: 32px;
         }
-        #close-chat:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+        #close-chat:hover { color: white; }
 
-        /* --- Messages Area --- */
         #messages { 
             flex: 1; padding: 16px; overflow-y: auto; 
             display: flex; flex-direction: column; gap: 12px; 
-            scroll-behavior: smooth;
         }
-        /* Custom Scrollbar */
-        #messages::-webkit-scrollbar { width: 6px; }
-        #messages::-webkit-scrollbar-track { background: transparent; }
-        #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
         .msg { 
             padding: 12px 16px; border-radius: 12px; max-width: 85%; 
-            font-size: 14px; line-height: 1.6; word-wrap: break-word; 
-            animation: messageIn 0.3s ease-out;
+            font-size: 14px; line-height: 1.5; word-wrap: break-word; 
         }
-        @keyframes messageIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .bot { background: var(--bg-card); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+        .user { background: #2563eb; color: white; align-self: flex-end; }
+        .bot { background: #1e293b; color: #e2e8f0; align-self: flex-start; border: 1px solid #334155; }
 
-        /* --- Typing Indicator --- */
-        .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 16px !important; }
+        .typing-indicator { display: flex; gap: 4px; padding: 16px !important; }
         .typing-indicator span {
-            width: 8px; height: 8px; background-color: var(--text-secondary);
-            border-radius: 50%; display: inline-block;
-            animation: bounce 1.4s infinite ease-in-out both;
+            width: 8px; height: 8px; background: #94a3b8;
+            border-radius: 50%; animation: bounce 1.4s infinite;
         }
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* --- Quick Replies --- */
         #quick-replies {
             display: flex; gap: 8px; padding: 12px 16px 0; overflow-x: auto;
-            scrollbar-width: none; flex-shrink: 0;
+            scrollbar-width: none;
         }
         #quick-replies::-webkit-scrollbar { display: none; }
         .quick-reply-pill {
-            flex-shrink: 0; padding: 8px 16px; min-height: 44px;
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 999px; color: var(--text-primary); font-size: 13px;
-            cursor: pointer; transition: all 0.2s; white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
+            padding: 8px 16px; background: #1e293b; border: 1px solid #334155;
+            border-radius: 999px; color: white; font-size: 13px; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s;
         }
-        .quick-reply-pill:hover { background: var(--primary); border-color: var(--primary); color: white; }
+        .quick-reply-pill:hover { background: #2563eb; border-color: #2563eb; }
 
-        /* --- Input Area --- */
         #input-area { 
-            display: flex; padding: 16px; border-top: 1px solid var(--border); 
-            background: var(--bg-dark); gap: 8px; align-items: flex-end; flex-shrink: 0;
+            display: flex; padding: 16px; border-top: 1px solid #334155; 
+            background: #0f172a; gap: 8px; align-items: center;
         }
         #user-input { 
-            flex: 1; padding: 12px 16px; border: 1px solid var(--border); 
-            border-radius: 24px; background: var(--bg-card); color: var(--text-primary); 
-            outline: none; font-size: 14px; font-family: inherit;
-            resize: none; overflow-y: hidden; max-height: 120px;
-            transition: border-color 0.2s; min-height: 44px;
+            flex: 1; padding: 12px 16px; border: 1px solid #334155; 
+            border-radius: 24px; background: #1e293b; color: white; 
+            outline: none; font-size: 14px; resize: none; max-height: 120px;
         }
-        #user-input:focus { border-color: var(--primary); }
-        #user-input::placeholder { color: var(--text-secondary); }
+        #user-input:focus { border-color: #2563eb; }
         #send-btn { 
-            padding: 12px 20px; min-width: 44px; min-height: 44px;
-            background: var(--primary); color: white; border: none; 
-            border-radius: 24px; cursor: pointer; font-weight: 600; font-size: 14px; 
-            transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+            padding: 12px 20px; background: #2563eb; color: white; border: none; 
+            border-radius: 24px; cursor: pointer; font-weight: 600;
         }
-        #send-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        #send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+        #send-btn:hover { background: #1d4ed8; }
+        #send-btn:disabled { background: #475569; cursor: not-allowed; }
 
-        /* --- Smart Scroll Button --- */
-        #scroll-to-bottom {
-            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            background: var(--bg-card); border: 1px solid var(--border);
-            color: var(--text-primary); padding: 8px 16px; border-radius: 20px;
-            font-size: 12px; font-weight: 600; cursor: pointer; z-index: 10;
-            display: none; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: opacity 0.2s;
-        }
-        #scroll-to-bottom:hover { background: var(--border); }
-
-        /* --- Mobile Breakpoint (< 768px) --- */
         @media (max-width: 768px) {
             #chat-window {
-                width: 100%; height: 100dvh; max-height: 100dvh; /* Dynamic viewport height */
+                width: 100%; height: 100vh; max-height: 100vh;
                 bottom: 0; right: 0; border-radius: 0;
-                transform: translateY(100%); /* Slide up from bottom */
             }
-            #chat-window.open { transform: translateY(0); }
-            #chat-toggle { bottom: 24px; right: 24px; }
-            #scroll-to-bottom { bottom: 90px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Chat Window -->
-    <div id="chat-window" role="dialog" aria-label="Freelankarx AI Assistant">
+    <div id="chat-window">
         <div id="chat-header">
             <h3>Freelankarx Assistant</h3>
-            <button id="close-chat" onclick="toggleChat()" aria-label="Close chat">✕</button>
+            <button id="close-chat" onclick="toggleChat()">✕</button>
         </div>
         
-        <div id="messages" role="log" aria-live="polite"></div>
-        
-        <!-- Smart Scroll Anchor -->
-        <button id="scroll-to-bottom" onclick="scrollToBottom()" aria-label="Scroll to new messages">
-            <span>↓</span> New Messages
-        </button>
+        <div id="messages"></div>
 
-        <!-- Quick Replies -->
         <div id="quick-replies">
             <button class="quick-reply-pill" onclick="sendQuickReply('What are your services?')">💼 Services</button>
-            <button class="quick-reply-pill" onclick="sendQuickReply('How much does a project cost?')">💰 Pricing</button>
-            <button class="quick-reply-pill" onclick="sendQuickReply('Can I see your portfolio?')">🎨 Portfolio</button>
-            <button class="quick-reply-pill" onclick="sendQuickReply('How do I book a strategy call?')">📅 Book a Call</button>
+            <button class="quick-reply-pill" onclick="sendQuickReply('How much does it cost?')">💰 Pricing</button>
+            <button class="quick-reply-pill" onclick="sendQuickReply('Show me portfolio')">🎨 Portfolio</button>
         </div>
 
-        <!-- Input Area -->
         <div id="input-area">
-            <textarea id="user-input" placeholder="Ask about services, pricing, or timelines..." rows="1" onkeydown="handleKeyPress(event)"></textarea>
-            <button id="send-btn" onclick="sendMessage()" aria-label="Send message">Send</button>
-        </div.
+            <textarea id="user-input" placeholder="Ask about services..." rows="1" onkeydown="handleKeyPress(event)"></textarea>
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
-    <!-- Floating Toggle Button -->
-    <button id="chat-toggle" onclick="toggleChat()" aria-label="Open chat assistant">
+    <button id="chat-toggle" onclick="toggleChat()">
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
     </button>
 
     <script>
         const BACKEND_URL = "https://freelankarx-chatbot-backend.onrender.com/chat";
-        const STORAGE_KEY_HISTORY = 'freelankarx_chat_history';
-        const STORAGE_KEY_DRAFT = 'freelankarx_chat_draft';
-
         let isChatOpen = false;
-        let hasSentFirstMessage = false;
-        let isUserScrolledUp = false;
-        let chatHistory = [];
+        let hasSentMessage = false;
 
-        const chatWindow = document.getElementById('chat-window');
-        const messagesDiv = document.getElementById('messages');
-        const textarea = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const quickReplies = document.getElementById('quick-replies');
-        const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
-
-        // --- 1. State Management & Initialization ---
-        function loadState() {
-            const savedHistory = localStorage.getItem(STORAGE_KEY_HISTORY);
-            if (savedHistory) {
-                chatHistory = JSON.parse(savedHistory);
-                chatHistory.forEach(msg => appendMessage(msg.role, msg.text, false));
-            } else {
-                appendMessage('bot', "Hello! 👋 I'm the Freelankarx AI assistant. How can we help scale your brand today?", false);
-            }
-            
-            const draft = localStorage.getItem(STORAGE_KEY_DRAFT);
-            if (draft) {
-                textarea.value = draft;
-                adjustTextareaHeight();
-            }
-        }
-
-        function saveHistory() {
-            localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(chatHistory));
-        }
-
-        // --- 2. Core UI Functions ---
         function toggleChat() {
             isChatOpen = !isChatOpen;
+            const chatWindow = document.getElementById('chat-window');
             if (isChatOpen) {
                 chatWindow.classList.add('open');
-                if (window.innerWidth > 768) {
-                    // Desktop: Focus input after transition
-                    setTimeout(() => textarea.focus(), 300);
-                } else {
-                    // Mobile: Prevent background body scroll
-                    document.body.style.overflow = 'hidden';
+                document.getElementById('user-input').focus();
+                if (!hasSentMessage) {
+                    appendMessage('bot', "Hello! 👋 I'm the Freelankarx AI assistant. How can we help scale your brand today?");
                 }
             } else {
                 chatWindow.classList.remove('open');
-                document.body.style.overflow = '';
             }
         }
 
-        function adjustTextareaHeight() {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
-
-        // Auto-grow & Draft Saving
-        textarea.addEventListener('input', () => {
-            localStorage.setItem(STORAGE_KEY_DRAFT, textarea.value);
-            adjustTextareaHeight();
-        });
-
-        // --- 3. Messaging Logic ---
-        function formatMessage(text) {
-            if (!text) return '';
-            // Basic safe markdown rendering
-            return text
-                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") // XSS Prevention
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/`(.*?)`/g, '<code style="background:#334155; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.9em;">$1</code>')
-                .replace(/\n/g, '<br>');
-        }
-
-        function appendMessage(role, text, save = true) {
-            if (save) {
-                chatHistory.push({ role, text });
-                saveHistory();
-            }
-            
+        function appendMessage(role, text) {
+            const messagesDiv = document.getElementById('messages');
             const div = document.createElement('div');
             div.className = `msg ${role}`;
-            div.innerHTML = formatMessage(text);
+            div.textContent = text;
             messagesDiv.appendChild(div);
-            
-            if (!isUserScrolledUp) {
-                scrollToBottom();
-            }
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
         function sendQuickReply(text) {
-            textarea.value = text;
+            document.getElementById('user-input').value = text;
             sendMessage();
         }
 
         async function sendMessage() {
-            const text = textarea.value.trim();
+            const inputField = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const text = inputField.value.trim();
             if (!text) return;
 
-            if (!hasSentFirstMessage) {
-                quickReplies.style.display = 'none';
-                hasSentFirstMessage = true;
-            }
-
+            hasSentMessage = true;
+            document.getElementById('quick-replies').style.display = 'none';
+            
             appendMessage('user', text);
-            textarea.value = '';
-            localStorage.removeItem(STORAGE_KEY_DRAFT);
-            adjustTextareaHeight();
+            inputField.value = '';
 
-            // Show typing indicator
-            const loadingId = 'loading-' + Date.now();
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'msg bot typing-indicator';
-            loadingDiv.id = loadingId;
             loadingDiv.innerHTML = '<span></span><span></span><span></span>';
-            messagesDiv.appendChild(loadingDiv);
-            scrollToBottom();
+            document.getElementById('messages').appendChild(loadingDiv);
 
-            textarea.disabled = true;
+            inputField.disabled = true;
             sendBtn.disabled = true;
 
             try {
@@ -336,20 +192,17 @@
                     body: JSON.stringify({ text: text })
                 });
                 
-                if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
-                
-                document.getElementById(loadingId).remove();
+                loadingDiv.remove();
                 appendMessage('bot', data.response);
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById(loadingId).remove();
-                appendMessage('bot', "I'm having a little trouble connecting right now. Please try again in a moment, or reach out via WhatsApp!");
+                loadingDiv.remove();
+                appendMessage('bot', "Having trouble connecting. Please try again!");
             }
 
-            textarea.disabled = false;
+            inputField.disabled = false;
             sendBtn.disabled = false;
-            if (window.innerWidth > 768) textarea.focus();
+            inputField.focus();
         }
 
         function handleKeyPress(event) {
@@ -358,24 +211,6 @@
                 sendMessage();
             }
         }
-
-        // --- 4. Smart Scroll Hook ---
-        messagesDiv.addEventListener('scroll', () => {
-            const threshold = 50;
-            const position = messagesDiv.scrollTop + messagesDiv.clientHeight;
-            const height = messagesDiv.scrollHeight;
-            isUserScrolledUp = (height - position) > threshold;
-            scrollToBottomBtn.style.display = isUserScrolledUp ? 'flex' : 'none';
-        });
-
-        function scrollToBottom() {
-            messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
-            isUserScrolledUp = false;
-            scrollToBottomBtn.style.display = 'none';
-        }
-
-        // Initialize
-        loadState();
     </script>
 </body>
 </html>
