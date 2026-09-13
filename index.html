@@ -20,9 +20,14 @@
             background: #2563eb; border-radius: 50%; border: none; cursor: pointer;
             box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4); z-index: 10000;
             display: flex; align-items: center; justify-content: center; 
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
         #chat-toggle:hover { transform: scale(1.05); }
+        #chat-toggle.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0);
+        }
         #chat-toggle svg { width: 28px; height: 28px; fill: white; }
 
         #chat-window {
@@ -140,14 +145,18 @@
         function toggleChat() {
             isChatOpen = !isChatOpen;
             const chatWindow = document.getElementById('chat-window');
+            const chatToggle = document.getElementById('chat-toggle');
+            
             if (isChatOpen) {
                 chatWindow.classList.add('open');
+                chatToggle.classList.add('hidden'); // Hide toggle button
                 document.getElementById('user-input').focus();
                 if (!hasSentMessage) {
                     appendMessage('bot', "Hello! 👋 I'm the Freelankarx AI assistant. How can we help scale your brand today?");
                 }
             } else {
                 chatWindow.classList.remove('open');
+                chatToggle.classList.remove('hidden'); // Show toggle button
             }
         }
 
